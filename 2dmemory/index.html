@@ -1,1 +1,361 @@
-dd
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Memory Simulator v5.1 (Label Fixed)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            color: #333;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .main-frame {
+            display: flex;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            gap: 40px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* SVG Circuit Style */
+        svg {
+            width: 380px; 
+            height: 520px;
+            background-color: #fff;
+            border-right: 1px dashed #ddd;
+            padding-right: 20px;
+        }
+        
+        text { font-family: monospace; font-weight: bold; user-select: none; }
+        
+        /* Wires and Plates */
+        .wire { stroke: #546e7a; stroke-width: 3; fill: none; }
+        .plate { stroke: #37474f; stroke-width: 6; stroke-linecap: round; }
+        .dielectric { fill: #e1f5fe; stroke: none; }
+        
+        /* Circuit Symbols */
+        .source-circle { fill: #fff; stroke: #333; stroke-width: 3; }
+        .source-text { font-size: 24px; font-family: sans-serif; fill: #333; font-weight: bold; }
+        .arrow-line { stroke: #333; stroke-width: 2; }
+
+        /* Labels */
+        .label { font-size: 14px; fill: #78909c; font-weight: 600; }
+        .comp-label { font-size: 14px; fill: #00897b; font-weight: bold; }
+        .voltage-lbl { font-size: 16px; fill: #e67e22; font-weight: bold; }
+        .net-charge-lbl { font-size: 15px; fill: #8e44ad; font-weight: bold; }
+
+        /* Charges */
+        .electron { fill: #2980b9; stroke: white; stroke-width: 1px; }
+        .hole { fill: #e74c3c; stroke: white; stroke-width: 1px; }
+
+        /* Control Panel */
+        .controls {
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        input[type=range] {
+            width: 100%;
+            cursor: pointer;
+            margin: 15px 0;
+            accent-color: #3498db;
+        }
+
+        .data-panel {
+            background: #263238;
+            color: #eceff1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #37474f;
+            padding-bottom: 8px;
+        }
+
+        .highlight { color: #f1c40f; font-weight: bold; }
+        
+        .explanation {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #455a64;
+            line-height: 1.5;
+            background: #fff8e1;
+            padding: 15px;
+            border-left: 5px solid #ffca28;
+            border-radius: 4px;
+        }
+        .explanation a { color: #1976d2; text-decoration: none; font-weight: bold; }
+        .explanation a:hover { text-decoration: underline; }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-reset {
+            flex: 1; padding: 12px; color: white; border: none;
+            border-radius: 8px; cursor: pointer; font-weight: bold;
+            font-size: 0.9rem; transition: background 0.2s;
+        }
+        .btn-erase { background: #e74c3c; }
+        .btn-erase:hover { background: #c0392b; }
+        .btn-intrinsic { background: #27ae60; }
+        .btn-intrinsic:hover { background: #219150; }
+
+    </style>
+</head>
+<body>
+
+    <h2>2D Memory Device Circuit (Label Fixed)</h2>
+    
+    <div class="main-frame">
+        <svg id="circuit" viewBox="0 0 380 520">
+            <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                  <path d="M0,0 L0,6 L9,3 z" fill="#333" />
+                </marker>
+            </defs>
+
+            <line x1="200" y1="20" x2="60" y2="20" class="wire" />
+            <line x1="60" y1="20" x2="60" y2="180" class="wire" />
+            <line x1="200" y1="420" x2="60" y2="420" class="wire" />
+            <line x1="60" y1="420" x2="60" y2="300" class="wire" />
+
+            <circle cx="60" cy="240" r="30" class="source-circle" />
+            <text x="51" y="248" class="source-text">V</text>
+            <line x1="35" y1="265" x2="85" y2="215" class="arrow-line" marker-end="url(#arrow)" />
+            <text x="25" y="295" class="label" style="fill:#333;">V_BG</text>
+
+
+            <line x1="200" y1="40" x2="200" y2="80" class="wire" /> 
+            <line x1="200" y1="40" x2="200" y2="20" class="wire" />
+            
+            <line x1="180" y1="20" x2="220" y2="20" class="wire" /> 
+            <line x1="188" y1="14" x2="212" y2="14" class="wire" /> 
+            <line x1="194" y1="8" x2="206" y2="8" class="wire" />  
+            <text x="230" y="30" class="label">Channel (0V)</text>
+
+            <rect x="140" y="80" width="120" height="30" class="dielectric" />
+            <line x1="140" y1="80" x2="260" y2="80" class="plate" />
+            <line x1="140" y1="110" x2="260" y2="110" class="plate" />
+            <text x="270" y="100" class="comp-label">C_BN</text>
+            
+            <line x1="200" y1="110" x2="200" y2="250" class="wire" />
+
+            <circle cx="200" cy="180" r="6" fill="#333" />
+            
+            <text x="215" y="160" class="label" style="fill:#333;">Floating Gate</text>
+            <text x="215" y="180" id="svg-vfg" class="voltage-lbl">V_FG: -5V</text>
+            <text x="215" y="200" id="svg-qnet" class="net-charge-lbl">Q_net: +5</text>
+
+            <rect x="140" y="250" width="120" height="30" class="dielectric" style="fill:#e3f2fd"/>
+            <line x1="140" y1="250" x2="260" y2="250" class="plate" />
+            <line x1="140" y1="280" x2="260" y2="280" class="plate" />
+            <text x="270" y="270" class="comp-label" style="fill:#1565c0">C_ox</text>
+
+            <line x1="200" y1="280" x2="200" y2="420" class="wire" />
+
+            <text x="210" y="410" class="label">Back Gate</text>
+            <text x="210" y="430" id="svg-vbg" class="voltage-lbl">V_BG: -10V</text>
+
+
+            <g id="q-bn-top"></g>
+            <g id="q-bn-bot"></g>
+            <g id="q-ox-top"></g>
+            <g id="q-ox-bot"></g>
+
+        </svg>
+
+        <div class="controls">
+            <div class="slider-container">
+                <label style="font-weight:bold; font-size:1.1rem; display:block; margin-bottom:10px;">V_BG Sweep</label>
+                <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#666; font-weight:bold;">
+                    <span>-10V (Erase)</span>
+                    <span>+10V (Program)</span>
+                </div>
+                <input type="range" id="slider" min="-10" max="10" step="1" value="-10" oninput="runPhysics()">
+            </div>
+
+            <div class="data-panel">
+                <div class="row">
+                    <span>$V_{BG}$ (입력):</span>
+                    <span id="disp-vbg" class="highlight">-10 V</span>
+                </div>
+                <div class="row">
+                    <span>$V_{FG}$ (전위):</span>
+                    <span id="disp-vfg" class="highlight">-5 V</span>
+                </div>
+                <div class="row">
+                    <span>$Q_{net}$ (알짜):</span>
+                    <span id="disp-qnet" style="color:#e74c3c">+5</span>
+                </div>
+                <div style="margin-top:10px; border-top:1px dashed #546e7a; padding-top:10px; font-size:0.9rem; min-height:20px; text-align:center;" id="status-msg">
+                    State: Initial Erased
+                </div>
+            </div>
+
+            <div class="explanation">
+                <strong>📄 Reference Paper</strong>
+                Material and Device Structure Designs for 2D Memory Devices Based on the Floating Gate Voltage Trajectory
+                <br><br>
+                <a href="https://doi.org/10.1021/acsnano.0c10005" target="_blank">
+                    🔗 Read on ACS Nano (10.1021/acsnano.0c10005)
+                </a>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-reset btn-erase" onclick="resetSim()">Reset to -10V<br>(Erase State)</button>
+                <button class="btn-reset btn-intrinsic" onclick="resetIntrinsic()">Reset to 0V<br>(Intrinsic)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 물리 변수 ---
+        let V_BG = -10;
+        let Q_net = 5;  
+        let V_FG = -5;  
+        const CLAMP_V = 5; 
+
+        // DOM Elements
+        const slider = document.getElementById('slider');
+        const dispVbg = document.getElementById('disp-vbg');
+        const dispVfg = document.getElementById('disp-vfg');
+        const dispQnet = document.getElementById('disp-qnet');
+        const statusMsg = document.getElementById('status-msg');
+        
+        const svgVbg = document.getElementById('svg-vbg');
+        const svgVfg = document.getElementById('svg-vfg');
+        const svgQnet = document.getElementById('svg-qnet');
+
+        // Charge Groups
+        const gBnTop = document.getElementById('q-bn-top');
+        const gBnBot = document.getElementById('q-bn-bot');
+        const gOxTop = document.getElementById('q-ox-top');
+        const gOxBot = document.getElementById('q-ox-bot');
+
+        function resetSim() {
+            slider.value = -10;
+            Q_net = 5; 
+            runPhysics();
+        }
+
+        function resetIntrinsic() {
+            slider.value = 0;
+            Q_net = 0;
+            runPhysics();
+        }
+
+        function runPhysics() {
+            let target_V_BG = parseInt(slider.value);
+            V_BG = target_V_BG;
+            
+            // 물리 계산
+            let potential_V_FG = V_BG + Q_net;
+            let msg = "";
+            let statusColor = "#eceff1";
+
+            if (potential_V_FG > CLAMP_V) {
+                let diff = potential_V_FG - CLAMP_V;
+                Q_net -= diff;
+                potential_V_FG = CLAMP_V;
+                msg = "⚡ Electron Tunneling (Program)";
+                statusColor = "#3498db"; 
+            } 
+            else if (potential_V_FG < -CLAMP_V) {
+                let diff = -CLAMP_V - potential_V_FG;
+                Q_net += diff;
+                potential_V_FG = -CLAMP_V;
+                msg = "⚡ Hole Tunneling (Erase)";
+                statusColor = "#e74c3c"; 
+            } else {
+                msg = "🔒 Holding State (Memory)";
+                statusColor = "#f1c40f"; 
+            }
+
+            V_FG = potential_V_FG;
+            
+            statusMsg.innerText = msg;
+            statusMsg.style.color = statusColor;
+
+            updateUI();
+            drawCharges();
+        }
+
+        function updateUI() {
+            dispVbg.innerText = V_BG + " V";
+            dispVfg.innerText = V_FG + " V";
+            dispQnet.innerText = (Q_net > 0 ? "+" : "") + Q_net;
+            
+            if (Q_net > 0) dispQnet.style.color = "#e74c3c";
+            else if (Q_net < 0) dispQnet.style.color = "#3498db";
+            else dispQnet.style.color = "#eceff1";
+
+            svgVbg.textContent = `V_BG: ${V_BG}V`;
+            svgVfg.textContent = `V_FG: ${V_FG}V`;
+            svgQnet.textContent = `Q_net: ${(Q_net > 0 ? "+" : "")}${Q_net}`;
+            svgQnet.style.fill = (Q_net > 0) ? "#e74c3c" : (Q_net < 0 ? "#3498db" : "#333");
+        }
+
+        function drawCharges() {
+            [gBnTop, gBnBot, gOxTop, gOxBot].forEach(g => g.innerHTML = '');
+
+            drawRow(gOxBot, V_BG, 285); 
+            drawRow(gOxTop, -V_BG, 245);
+            drawRow(gBnTop, -V_FG, 75);
+            drawRow(gBnBot, V_FG, 115);
+        }
+
+        function drawRow(group, amount, yPos) {
+            let count = Math.round(amount);
+            if (count === 0) return;
+
+            let isPositive = count > 0;
+            let num = Math.abs(count);
+            let className = isPositive ? "hole" : "electron";
+
+            for(let i=0; i<num; i++) {
+                let startX = 140;
+                let gap = 120 / (num + 1);
+                let x = startX + gap * (i+1);
+
+                let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", x);
+                circle.setAttribute("cy", yPos);
+                circle.setAttribute("r", 4);
+                circle.setAttribute("class", className);
+                
+                group.appendChild(circle);
+            }
+        }
+        
+        runPhysics();
+
+    </script>
+</body>
+</html>
