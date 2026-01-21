@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Memory Simulator</title>
+    <title>2D Memory Simulator v6.0 (Clean Circuit)</title>
     <style>
         body {
             font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
@@ -52,8 +52,7 @@
         /* Circuit Symbols */
         .source-circle { fill: #fff; stroke: #333; stroke-width: 3; }
         .source-text { font-size: 24px; font-family: sans-serif; fill: #333; font-weight: bold; }
-        .arrow-line { stroke: #333; stroke-width: 2; }
-
+        
         /* Labels */
         .label { font-size: 14px; fill: #78909c; font-weight: 600; }
         .comp-label { font-size: 14px; fill: #00897b; font-weight: bold; }
@@ -135,21 +134,13 @@
     
     <div class="main-frame">
         <svg id="circuit" viewBox="0 0 380 520">
-            <defs>
-                <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-                  <path d="M0,0 L0,6 L9,3 z" fill="#333" />
-                </marker>
-            </defs>
-
+            
             <line x1="200" y1="20" x2="60" y2="20" class="wire" />
-            <line x1="60" y1="20" x2="60" y2="180" class="wire" />
-            <line x1="200" y1="420" x2="60" y2="420" class="wire" />
-            <line x1="60" y1="420" x2="60" y2="300" class="wire" />
-
-            <circle cx="60" cy="240" r="30" class="source-circle" />
+            <line x1="60" y1="20" x2="60" y2="210" class="wire" /> <line x1="200" y1="420" x2="60" y2="420" class="wire" />
+            <line x1="60" y1="420" x2="60" y2="270" class="wire" /> <circle cx="60" cy="240" r="30" class="source-circle" />
             <text x="51" y="248" class="source-text">V</text>
-            <line x1="35" y1="265" x2="85" y2="215" class="arrow-line" marker-end="url(#arrow)" />
-            <text x="25" y="295" class="label" style="fill:#333;">V_BG</text>
+            
+            <text x="35" y="295" class="label" style="fill:#333;">V_BG</text>
 
 
             <line x1="200" y1="40" x2="200" y2="80" class="wire" /> 
